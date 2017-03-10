@@ -32,7 +32,7 @@ import elemental.json.JsonObject;
  * <p>
  * For more information please see {@link Grid}'s documentation.
  */
-public class TreeGrid extends Grid {
+public class TreeGrid extends Grid implements ExpansionTogglable {
 
     private static final Logger logger = Logger.getLogger(TreeGrid.class.getName());
 
@@ -93,7 +93,7 @@ public class TreeGrid extends Grid {
         return (TreeGridState) super.getState();
     }
 
-    void toggleExpansion(Object itemId) {
+    public void toggleExpansion(Object itemId) {
         if (getContainerDataSource() instanceof Collapsible) {
             Collapsible container = (Collapsible) getContainerDataSource();
             container.setCollapsed(itemId, !container.isCollapsed(itemId)); // Collapsible

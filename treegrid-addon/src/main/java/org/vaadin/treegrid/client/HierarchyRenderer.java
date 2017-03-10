@@ -68,7 +68,7 @@ class HierarchyRenderer extends ClickableRenderer<Object, Widget> {
             ((WidgetRenderer) innerRenderer).render(cell, data, ((HierarchyItem) widget).content);
         } else {
             innerRenderer.render(new HierarchyRendererCellReferenceWrapper(cell,
-                    ((HierarchyItem) widget).content.getElement()), data);
+                    ((HierarchyItem) widget).content.getElement()), data.toString());
         }
     }
 

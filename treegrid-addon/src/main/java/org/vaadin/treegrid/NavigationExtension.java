@@ -6,7 +6,7 @@ import org.vaadin.treegrid.client.NavigationExtensionConnector;
 
 public class NavigationExtension extends Grid.AbstractGridExtension {
 
-    private NavigationExtension(final TreeGrid grid) {
+    private <T extends Grid & ExpansionTogglable> NavigationExtension(final T grid) {
         super(grid);
 
         registerRpc(new NavigationExtensionConnector.NodeCollapseRpc() {
@@ -18,7 +18,7 @@ public class NavigationExtension extends Grid.AbstractGridExtension {
         });
     }
 
-    static NavigationExtension extend(TreeGrid grid) {
+    static <T extends Grid & ExpansionTogglable> NavigationExtension extend(T grid) {
         return new NavigationExtension(grid);
     }
 }

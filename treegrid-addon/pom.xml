@@ -5,14 +5,14 @@
 	<groupId>com.vaadin</groupId>
 	<artifactId>vaadin-treegrid</artifactId>
 	<packaging>jar</packaging>
-	<version>0.7.4</version>
+	<version>0.7.5-SIGMA</version>
 	<name>Vaadin TreeGrid</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
-		<vaadin.version>7.7.7</vaadin.version>
+		<vaadin.version>7.7.8</vaadin.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 
 		<!-- ZIP Manifest fields -->
@@ -206,6 +206,23 @@
 
 	<profiles>
 		<profile>
+			<id>sigma</id>
+			<distributionManagement>
+				<repository>
+					<id>deployment</id>
+					<name>Internal Releases</name>
+					<url>http://nexus:8081/nexus/content/repositories/releases/</url>
+				</repository>
+				<snapshotRepository>
+					<id>deployment</id>
+					<name>Internal Snapshots</name>
+					<url>http://nexus:8081/nexus/content/repositories/snapshots/</url>
+				</snapshotRepository>
+			</distributionManagement>
+		</profile>
+
+		<profile>
+
 			<!-- Vaadin pre-release repositories -->
 			<id>vaadin-prerelease</id>
 			<activation>
@@ -224,21 +241,6 @@
 					<url>http://maven.vaadin.com/vaadin-prereleases</url>
 				</pluginRepository>
 			</pluginRepositories>
-		</profile>
-		<profile>
-			<id>sigma</id>
-			<distributionManagement>
-				<repository>
-					<id>deployment</id>
-					<name>Internal Releases</name>
-					<url>http://nexus:8081/nexus/content/repositories/releases/</url>
-				</repository>
-				<snapshotRepository>
-					<id>deployment</id>
-					<name>Internal Snapshots</name>
-					<url>http://nexus:8081/nexus/content/repositories/snapshots/</url>
-				</snapshotRepository>
-			</distributionManagement>
 		</profile>
 	</profiles>
 

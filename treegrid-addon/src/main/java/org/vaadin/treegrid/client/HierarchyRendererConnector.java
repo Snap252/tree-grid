@@ -1,6 +1,8 @@
 package org.vaadin.treegrid.client;
 
+import com.vaadin.client.ServerConnector;
 import com.vaadin.client.connectors.AbstractRendererConnector;
+import com.vaadin.client.renderers.Renderer;
 
 /*
  * Copyright 2000-2014 Vaadin Ltd.
@@ -32,15 +34,13 @@ import elemental.json.JsonValue;
 @Connect(org.vaadin.treegrid.HierarchyRenderer.class)
 public class HierarchyRendererConnector extends AbstractRendererConnector<Object> {
 
-	private boolean added = false;
-
 	@Override
-	public HierarchyRendererExtension getRenderer() {
-		HierarchyRendererExtension renderer = (HierarchyRendererExtension) super.getRenderer();
-		if (!added) {
-			TreeGridConnector parentConnector = (TreeGridConnector) getParent();
+	protected Renderer<Object> createRenderer() {
+		HierarchyRendererExtension renderer = new HierarchyRendererExtension();
+		ServerConnector parent = getParent();
+		if (parent instanceof TreeGridConnector) {
+			TreeGridConnector parentConnector = (TreeGridConnector) parent;
 			parentConnector.addClickHandler(renderer);
-			added = true;
 		}
 		return renderer;
 	}

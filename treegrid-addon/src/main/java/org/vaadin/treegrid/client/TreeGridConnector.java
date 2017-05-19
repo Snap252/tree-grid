@@ -90,18 +90,12 @@ public class TreeGridConnector extends GridConnector {
      * <ul>
      * <li>{@link com.vaadin.client.widgets.Grid.CellFocusEventHandler} as an element of the {@link
      * Grid#browserEventHandlers} list -> {@link CellFocusEventHandler}</li>
-     * <li>{@link Grid#clickEvent} field -> {@link TreeGridClickEvent}</li>
      * </ul>
      */
     private void replaceMemberFields() {
-
         // Swap Grid's CellFocusEventHandler to this custom one
         // The handler is identical to the original one except for the child widget check
         replaceCellFocusEventHandler(getWidget(), new CellFocusEventHandler());
-
-        // Swap Grid#clickEvent field
-        // The event is identical to the original one except for the child widget check
-        replaceClickEvent(getWidget(), new TreeGridClickEvent(getWidget(), getEventCell(getWidget())));
     }
 
     private native void replaceCellFocusEventHandler(Grid grid, GridEventHandler eventHandler)/*-{
@@ -111,11 +105,8 @@ public class TreeGridConnector extends GridConnector {
         browserEventHandlers.@java.util.List::set(*)(5, eventHandler);
     }-*/;
 
-    private native void replaceClickEvent(Grid grid, GridClickEvent event)/*-{
-        grid.@com.vaadin.client.widgets.Grid::clickEvent = event;
-    }-*/;
 
-    private native EventCellReference getEventCell(Grid grid)/*-{
+	private native EventCellReference getEventCell(Grid grid)/*-{
         return grid.@com.vaadin.client.widgets.Grid::eventCell;
     }-*/;
 

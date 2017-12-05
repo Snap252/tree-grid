@@ -9,6 +9,8 @@ import java.util.logging.Logger;
 import org.vaadin.treegrid.client.TreeGridState;
 import org.vaadin.treegrid.container.ContainerCollapsibleWrapper;
 import org.vaadin.treegrid.container.IndexedContainerHierarchicalWrapper;
+import org.vaadin.treegrid.event.CollapseEvent;
+import org.vaadin.treegrid.event.ExpandEvent;
 
 import com.vaadin.data.Collapsible;
 import com.vaadin.data.Container;
@@ -88,6 +90,51 @@ public class TreeGrid extends Grid implements ExpansionTogglable {
         }
     }
 
+    /**
+     * Adds an ExpandListener to this TreeGrid.
+     *
+     * @param listener
+     *         the listener to add
+     * @since 0.7.6
+     */
+    public void addExpandListener(ExpandEvent.ExpandListener listener) {
+        addListener(ExpandEvent.class, listener, ExpandEvent.ExpandListener.EXPAND_METHOD);
+    }
+
+    /**
+     * Removes an ExpandListener from this TreeGrid.
+     *
+     * @param listener
+     *         the listener to remove
+     * @since 0.7.6
+     */
+    public void removeExpandListener(ExpandEvent.ExpandListener listener) {
+        removeListener(ExpandEvent.class, listener, ExpandEvent.ExpandListener.EXPAND_METHOD);
+    }
+
+    /**
+     * Adds a CollapseListener to this TreeGrid.
+     *
+     * @param listener
+     *         the listener to add
+     * @since 0.7.6
+     */
+    public void addCollapseListener(CollapseEvent.CollapseListener listener) {
+        addListener(CollapseEvent.class, listener, CollapseEvent.CollapseListener.COLLAPSE_METHOD);
+    }
+
+    /**
+     * Removes a CollapseListener from this TreeGrid.
+     *
+     * @param listener
+     *         the listener to remove
+     * @since 0.7.6
+     */
+    public void removeCollapseListener(CollapseEvent.CollapseListener listener) {
+        removeListener(CollapseEvent.class, listener, CollapseEvent.CollapseListener.COLLAPSE_METHOD);
+    }
+
+
     @Override
     protected TreeGridState getState() {
         return (TreeGridState) super.getState();
@@ -96,7 +143,18 @@ public class TreeGrid extends Grid implements ExpansionTogglable {
     public void toggleExpansion(Object itemId) {
         if (getContainerDataSource() instanceof Collapsible) {
             Collapsible container = (Collapsible) getContainerDataSource();
-            container.setCollapsed(itemId, !container.isCollapsed(itemId)); // Collapsible
+
+            boolean collapsed = container.isCollapsed(itemId);
+
+            // Expand or collapse the item
+            container.setCollapsed(itemId, !collapsed); // Collapsible
+
+            // Fire expand or collapse event
+            if (collapsed) {
+                fireEvent(new ExpandEvent(this, getContainerDataSource().getItem(itemId), itemId));
+            } else {
+                fireEvent(new CollapseEvent(this, getContainerDataSource().getItem(itemId), itemId));
+            }
         }
     }
 
@@ -203,10 +261,11 @@ public class TreeGrid extends Grid implements ExpansionTogglable {
                 try {
                     final Column column;
                     Method getColumnByColumnId = Grid.class.getDeclaredMethod("getColumnByColumnId", String.class);
+                    getColumnByColumnId.setAccessible(true);
                     column = (Column) getColumnByColumnId.invoke(TreeGrid.this, id);
 
                     Method getState = Column.class.getDeclaredMethod("getState");
-
+                    getState.setAccessible(true);
                     final GridColumnState columnState = (GridColumnState) getState.invoke(column);
 
                     if (columnState.hidden != hidden) {

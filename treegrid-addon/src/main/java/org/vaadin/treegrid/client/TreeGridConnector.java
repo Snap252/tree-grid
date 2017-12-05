@@ -1,15 +1,17 @@
 package org.vaadin.treegrid.client;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.logging.Logger;
 
 import com.google.gwt.dom.client.Element;
 import com.google.web.bindery.event.shared.HandlerRegistration;
 import com.vaadin.client.ServerConnector;
+import com.vaadin.client.communication.StateChangeEvent;
 import com.vaadin.client.connectors.GridConnector;
 import com.vaadin.client.renderers.ClickableRenderer;
 import com.vaadin.client.widget.grid.EventCellReference;
 import com.vaadin.client.widget.grid.GridEventHandler;
-import com.vaadin.client.widget.grid.events.GridClickEvent;
 import com.vaadin.client.widgets.Grid;
 import com.vaadin.shared.ui.Connect;
 
@@ -20,23 +22,6 @@ public class TreeGridConnector extends GridConnector {
 
     private String hierarchyColumnId;
 
-    private final ClickableRenderer.RendererClickHandler<JsonObject> rch = new ClickableRenderer.RendererClickHandler<JsonObject>() {
-        @Override
-        public void onClick(ClickableRenderer.RendererClickEvent<JsonObject> event) {
-            NavigationExtensionConnector navigation = getNavigationExtensionConnector();
-            if (navigation != null) {
-                navigation.toggleCollapse(getRowKey(event.getRow()));
-            }
-
-            event.stopPropagation();
-            event.preventDefault();
-        }
-    };
-
-    public HandlerRegistration addClickHandler(ClickableRenderer<?, ?> hr) {
-    	return hr.addClickHandler(rch);
-    }
-
     @Override
     public TreeGrid getWidget() {
         return (TreeGrid) super.getWidget();
@@ -46,6 +31,57 @@ public class TreeGridConnector extends GridConnector {
     public TreeGridState getState() {
         return (TreeGridState) super.getState();
     }
+
+    private Grid.Column getColumn(String columnId) {
+        return getColumnIdToColumn().get(columnId);
+    }
+
+    @Override
+    public void onStateChanged(StateChangeEvent stateChangeEvent) {
+        super.onStateChanged(stateChangeEvent);
+
+        if (stateChangeEvent.hasPropertyChanged("hierarchyColumnId") ||
+                stateChangeEvent.hasPropertyChanged("columns")) {
+
+            // Id of old hierarchy column
+            String oldHierarchyColumnId = this.hierarchyColumnId;
+
+            // Id of new hierarchy column. Choose first when nothing explicitly set
+            String newHierarchyColumnId = getState().hierarchyColumnId;
+            if (newHierarchyColumnId == null) {
+                newHierarchyColumnId = getState().columnOrder.get(0);
+            }
+
+            // Columns
+            Grid.Column newColumn = getColumn(newHierarchyColumnId);
+            Grid.Column oldColumn = getColumn(oldHierarchyColumnId);
+
+            // Unwrap renderer of old column
+            if (oldColumn != null && oldColumn.getRenderer() instanceof HierarchyRenderer) {
+                oldColumn.setRenderer(((HierarchyRenderer) oldColumn.getRenderer()).getInnerRenderer());
+            }
+
+            // Wrap renderer of new column
+            if (newColumn != null) {
+                HierarchyRenderer wrapperRenderer = getHierarchyRenderer();
+                wrapperRenderer.setInnerRenderer(newColumn.getRenderer());
+                newColumn.setRenderer(wrapperRenderer);
+
+                // Set frozen columns again after setting hierarchy column as setRenderer() replaces DOM elements
+                getWidget().setFrozenColumnCount(getState().frozenColumnCount);
+
+                this.hierarchyColumnId = newHierarchyColumnId;
+            } else {
+                Logger.getLogger(TreeGridConnector.class.getName())
+                        .warning("Couldn't find column: " + newHierarchyColumnId);
+            }
+        }
+    }
+
+    // Hack to access private column map
+    private native Map<String, ? extends Grid.Column> getColumnIdToColumn()/*-{
+        return this.@com.vaadin.client.connectors.GridConnector::columnIdToColumn;
+    }-*/;
 
     private HierarchyRenderer hierarchyRenderer;
 
@@ -63,8 +99,20 @@ public class TreeGridConnector extends GridConnector {
     @Override
     protected void init() {
         super.init();
+
         expanderClickHandlerRegistration = getHierarchyRenderer()
-                .addClickHandler(rch);
+                .addClickHandler(new ClickableRenderer.RendererClickHandler<JsonObject>() {
+                    @Override
+                    public void onClick(ClickableRenderer.RendererClickEvent<JsonObject> event) {
+                        NavigationExtensionConnector navigation = getNavigationExtensionConnector();
+                        if (navigation != null) {
+                            navigation.toggleCollapse(getRowKey(event.getRow()));
+                        }
+
+                        event.stopPropagation();
+                        event.preventDefault();
+                    }
+                });
 
         replaceMemberFields();
     }
@@ -105,8 +153,7 @@ public class TreeGridConnector extends GridConnector {
         browserEventHandlers.@java.util.List::set(*)(5, eventHandler);
     }-*/;
 
-
-	private native EventCellReference getEventCell(Grid grid)/*-{
+    private native EventCellReference getEventCell(Grid grid)/*-{
         return grid.@com.vaadin.client.widgets.Grid::eventCell;
     }-*/;
 

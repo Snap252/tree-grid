@@ -36,6 +36,22 @@ public class TreeGridConnector extends GridConnector {
         return getColumnIdToColumn().get(columnId);
     }
 
+    private final ClickableRenderer.RendererClickHandler<JsonObject> rch = new ClickableRenderer.RendererClickHandler<JsonObject>() {
+        @Override
+        public void onClick(ClickableRenderer.RendererClickEvent<JsonObject> event) {
+            NavigationExtensionConnector navigation = getNavigationExtensionConnector();
+            if (navigation != null) {
+                navigation.toggleCollapse(getRowKey(event.getRow()));
+            }
+
+            event.stopPropagation();
+            event.preventDefault();
+        }
+    };
+    public HandlerRegistration addClickHandler(ClickableRenderer<?, ?> hr) {
+    	return hr.addClickHandler(rch);
+    }
+
     @Override
     public void onStateChanged(StateChangeEvent stateChangeEvent) {
         super.onStateChanged(stateChangeEvent);
@@ -101,18 +117,7 @@ public class TreeGridConnector extends GridConnector {
         super.init();
 
         expanderClickHandlerRegistration = getHierarchyRenderer()
-                .addClickHandler(new ClickableRenderer.RendererClickHandler<JsonObject>() {
-                    @Override
-                    public void onClick(ClickableRenderer.RendererClickEvent<JsonObject> event) {
-                        NavigationExtensionConnector navigation = getNavigationExtensionConnector();
-                        if (navigation != null) {
-                            navigation.toggleCollapse(getRowKey(event.getRow()));
-                        }
-
-                        event.stopPropagation();
-                        event.preventDefault();
-                    }
-                });
+                .addClickHandler(rch);
 
         replaceMemberFields();
     }

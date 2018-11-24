@@ -5,14 +5,14 @@
 	<groupId>com.vaadin</groupId>
 	<artifactId>vaadin-treegrid</artifactId>
 	<packaging>jar</packaging>
-	<version>0.7.5-SIGMA</version>
+	<version>0.7.6-SIGMA</version>
 	<name>Vaadin TreeGrid</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
-		<vaadin.version>7.7.9</vaadin.version>
+		<vaadin.version>7.7.13</vaadin.version>
 		<vaadin.plugin.version>${vaadin.version}</vaadin.plugin.version>
 
 		<!-- ZIP Manifest fields -->

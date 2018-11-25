@@ -7,6 +7,11 @@
 
 	<packaging>pom</packaging>
 	<name>TreeGrid Add-on Root Project</name>
+	
+	<properties>
+		<!-- github server corresponds to entry in ~/.m2/settings.xml -->
+		<github.global.server>github</github.global.server>
+	</properties>
 
 	<parent>
 		<groupId>snap252</groupId>
@@ -14,12 +19,43 @@
 		<version>0.7-SNAPSHOT</version>
 		<relativePath>parent.pom.xml</relativePath>
 	</parent>
-	
+
 	<modules>
 		<module>treegrid-addon</module>
 		<module>treegrid-demo</module>
 		<module>parent.pom.xml</module>
 	</modules>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>com.github.github</groupId>
+				<artifactId>site-maven-plugin</artifactId>
+				<version>0.12</version>
+				<configuration>
+					<message>Maven artifacts for ${project.version}</message>  <!-- git commit message -->
+					<noJekyll>true</noJekyll>                                  <!-- disable webpage processing -->
+					<outputDirectory>${internal.repo.url.file}</outputDirectory> <!-- matches distribution management repository url above -->
+					<branch>refs/heads/mvn-repo</branch>                       <!-- remote branch name -->
+					<includes>
+						<include>**/*</include>
+					</includes>
+					<repositoryName>tree-grid</repositoryName>      <!-- github repo name -->
+					<repositoryOwner>Snap252</repositoryOwner>    <!-- github username -->
+				</configuration>
+				<executions>
+					<!-- run site-maven-plugin's 'site' target as part of the build's normal 
+						'deploy' phase -->
+					<execution>
+						<goals>
+							<goal>site</goal>
+						</goals>
+						<phase>deploy</phase>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 	<profiles>
 		<profile>

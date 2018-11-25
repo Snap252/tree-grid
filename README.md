@@ -1,3 +1,5 @@
+https://travis-ci.com/Snap252/tree-grid
+
 [![Build Status](https://travis-ci.org/vaadin/tree-grid.svg?branch=master)](https://travis-ci.org/vaadin/tree-grid)
 
 # Vaadin TreeGrid add-on

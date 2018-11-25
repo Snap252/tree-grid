@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>snap252</groupId>
+  <artifactId>treegrid-root</artifactId>
+  <versioning>
+    <versions>
+      <version>0.7-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20181125092434</lastUpdated>
+  </versioning>
+</metadata>
